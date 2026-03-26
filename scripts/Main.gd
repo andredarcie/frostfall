@@ -343,7 +343,7 @@ func _spawn_snowfall() -> void:
 	_spawn_snow_layer(
 		"SnowNear",
 		Vector3(0.0, 18.0, 10.0),
-		3800,
+		1200,
 		8.0,
 		Vector3(32.0, 6.0, 34.0),
 		Vector2(0.12, 0.16),
@@ -357,7 +357,7 @@ func _spawn_snowfall() -> void:
 	_spawn_snow_layer(
 		"SnowMid",
 		Vector3(0.0, 28.0, -8.0),
-		6200,
+		1800,
 		10.0,
 		Vector3(78.0, 4.0, 92.0),
 		Vector2(0.08, 0.11),
@@ -371,7 +371,7 @@ func _spawn_snowfall() -> void:
 	_spawn_snow_layer(
 		"SnowFar",
 		Vector3(0.0, 40.0, -54.0),
-		7600,
+		2200,
 		12.0,
 		Vector3(128.0, 8.0, 150.0),
 		Vector2(0.045, 0.07),
@@ -385,7 +385,7 @@ func _spawn_snowfall() -> void:
 	_spawn_snow_layer(
 		"SnowGust",
 		Vector3(0.0, 3.4, -6.0),
-		3400,
+		900,
 		6.5,
 		Vector3(94.0, 1.2, 108.0),
 		Vector2(0.06, 0.12),
@@ -418,7 +418,7 @@ func _spawn_snow_layer(
 	snow.amount = amount
 	snow.lifetime = lifetime
 	snow.preprocess = lifetime
-	snow.visibility_aabb = AABB(Vector3(-emission_extents.x * 1.4, -40.0, -emission_extents.z * 1.4), Vector3(emission_extents.x * 2.8, 90.0, emission_extents.z * 2.8))
+	snow.visibility_aabb = AABB(Vector3(-emission_extents.x * 1.15, -32.0, -emission_extents.z * 1.15), Vector3(emission_extents.x * 2.3, 72.0, emission_extents.z * 2.3))
 	snow.draw_pass_1 = QuadMesh.new()
 	var quad := snow.draw_pass_1 as QuadMesh
 	quad.size = quad_size
