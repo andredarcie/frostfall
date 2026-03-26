@@ -6,12 +6,17 @@ const TERRAIN_SUBDIVISIONS_X := 96
 const TERRAIN_SUBDIVISIONS_Z := 120
 const REALISTIC_TREE_PATH := "res://assets/third_party/vegetation/pixabay/real_tree.glb"
 const REALISTIC_BUSH_PATH := "res://assets/third_party/vegetation/pixabay/real_bush.glb"
+const WEB_TERRAIN_SUBDIVISIONS_X := 60
+const WEB_TERRAIN_SUBDIVISIONS_Z := 76
 
 @onready var world: Node3D = $World
 @onready var player: Variant = $Player
 @onready var enemies_root: Node3D = $Enemies
 @onready var artifact_area: Area3D = $ArtifactArea
 @onready var artifact_mesh: MeshInstance3D = $ArtifactArea/ArtifactMesh
+@onready var sun: DirectionalLight3D = $Sun
+@onready var fill_light: DirectionalLight3D = $FillLight
+@onready var world_environment: WorldEnvironment = $WorldEnvironment
 @onready var compass_label: Label = $HUD/CompassPanel/CompassLabel
 @onready var compass_markers: Control = $HUD/CompassPanel/CompassMarkers
 @onready var quest_label: Label = $HUD/QuestLabel
@@ -29,9 +34,12 @@ var game_finished := false
 var scene_time := 0.0
 var asset_cache: Dictionary = {}
 var vegetation_wind_shader: Shader
+var is_web_build := false
 
 
 func _ready() -> void:
+	is_web_build = OS.has_feature("web")
+	_optimize_for_platform()
 	_configure_input_map()
 	_build_world()
 	_snap_scene_nodes_to_terrain()
@@ -116,6 +124,20 @@ func _build_world() -> void:
 	artifact_area.position = Vector3(0.0, 0.0, -72.0)
 
 
+func _optimize_for_platform() -> void:
+	if not is_web_build:
+		return
+
+	if world_environment.environment != null:
+		world_environment.environment.glow_enabled = false
+		world_environment.environment.ssao_enabled = false
+		world_environment.environment.fog_density = 0.009
+		world_environment.environment.fog_aerial_perspective = 0.8
+
+	sun.directional_shadow_max_distance = 48.0
+	fill_light.light_energy = 0.08
+
+
 func _create_box_obstacle(name: String, position: Vector3, size: Vector3, material: Material) -> void:
 	var body := StaticBody3D.new()
 	body.name = name
@@ -158,11 +180,13 @@ func _build_terrain_mesh() -> ArrayMesh:
 	var surface_tool := SurfaceTool.new()
 	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 
-	var step_x := (TERRAIN_HALF_SIZE.x * 2.0) / float(TERRAIN_SUBDIVISIONS_X)
-	var step_z := (TERRAIN_HALF_SIZE.y * 2.0) / float(TERRAIN_SUBDIVISIONS_Z)
+	var subdivisions_x: int = WEB_TERRAIN_SUBDIVISIONS_X if is_web_build else TERRAIN_SUBDIVISIONS_X
+	var subdivisions_z: int = WEB_TERRAIN_SUBDIVISIONS_Z if is_web_build else TERRAIN_SUBDIVISIONS_Z
+	var step_x := (TERRAIN_HALF_SIZE.x * 2.0) / float(subdivisions_x)
+	var step_z := (TERRAIN_HALF_SIZE.y * 2.0) / float(subdivisions_z)
 
-	for x_index in range(TERRAIN_SUBDIVISIONS_X):
-		for z_index in range(TERRAIN_SUBDIVISIONS_Z):
+	for x_index in range(subdivisions_x):
+		for z_index in range(subdivisions_z):
 			var x0 := TERRAIN_CENTER.x - TERRAIN_HALF_SIZE.x + float(x_index) * step_x
 			var x1 := x0 + step_x
 			var z0 := TERRAIN_CENTER.z - TERRAIN_HALF_SIZE.y + float(z_index) * step_z
@@ -257,8 +281,10 @@ func _load_external_scene(asset_path: String) -> PackedScene:
 
 
 func _spawn_dense_forest() -> void:
-	for x in range(-78, 79, 7):
-		for z in range(-96, 73, 7):
+	var spacing: int = 11 if is_web_build else 7
+	var patch_spacing: int = 24 if is_web_build else 18
+	for x in range(-78, 79, spacing):
+		for z in range(-96, 73, spacing):
 			var x_float: float = float(x)
 			var z_float: float = float(z)
 			var path_clearance: bool = abs(x_float) < 16.0 and z_float > -86.0 and z_float < 64.0
@@ -277,19 +303,19 @@ func _spawn_dense_forest() -> void:
 			var selector: int = abs(int(x_float * 17.0 + z_float * 13.0)) % 12
 			var rotation_y: float = wrapf(x_float * 11.0 + z_float * 7.0 + density_noise * 35.0, 0.0, 360.0)
 
-			if selector <= 5:
+			if selector <= (3 if is_web_build else 5):
 				var tree_scale: float = 2.7 + float(selector) * 0.22 + max(density_noise, 0.0) * 0.28
 				_spawn_external_asset(REALISTIC_TREE_PATH, pos, Vector3(0.0, rotation_y, 0.0), Vector3.ONE * tree_scale)
-			elif selector <= 8:
+			elif selector <= (5 if is_web_build else 8):
 				var bush_scale: float = 0.18 + float(selector - 5) * 0.04
 				_spawn_external_asset(REALISTIC_BUSH_PATH, pos, Vector3(0.0, rotation_y, 0.0), Vector3.ONE * bush_scale)
 
-	for patch_x in range(-70, 71, 18):
-		for patch_z in range(-86, 64, 18):
+	for patch_x in range(-70, 71, patch_spacing):
+		for patch_z in range(-86, 64, patch_spacing):
 			var patch_center := Vector3(float(patch_x) + sin(float(patch_z) * 0.7) * 1.2, 0.0, float(patch_z) + cos(float(patch_x) * 0.5) * 1.2)
 			if abs(patch_center.x) < 12.0 and patch_center.z > -22.0 and patch_center.z < 16.0:
 				continue
-			for shrub_index in range(2):
+			for shrub_index in range(1 if is_web_build else 2):
 				var angle: float = float(shrub_index) * 2.09 + sin(patch_center.x * 0.2 + float(shrub_index))
 				var radius: float = 0.9 + float(shrub_index) * 0.55
 				var shrub_pos := patch_center + Vector3(cos(angle) * radius, 0.0, sin(angle) * radius)
@@ -317,12 +343,18 @@ func _spawn_dense_forest() -> void:
 
 func _spawn_mist_layers() -> void:
 	var mist_material: ShaderMaterial = _make_mist_material()
-	for mist_data in [
+	var mist_layers: Array = [
 		{"position": Vector3(0.0, 8.0, -40.0), "size": Vector2(210.0, 32.0), "alpha": 0.55},
 		{"position": Vector3(0.0, 13.0, -78.0), "size": Vector2(280.0, 44.0), "alpha": 0.72},
 		{"position": Vector3(0.0, 22.0, -142.0), "size": Vector2(360.0, 60.0), "alpha": 0.88},
 		{"position": Vector3(0.0, 30.0, -188.0), "size": Vector2(420.0, 74.0), "alpha": 0.9}
-	]:
+	]
+	if is_web_build:
+		mist_layers = [
+			{"position": Vector3(0.0, 12.0, -78.0), "size": Vector2(240.0, 38.0), "alpha": 0.58},
+			{"position": Vector3(0.0, 24.0, -170.0), "size": Vector2(340.0, 56.0), "alpha": 0.76}
+		]
+	for mist_data in mist_layers:
 		var mist_plane := MeshInstance3D.new()
 		var plane := PlaneMesh.new()
 		plane.size = mist_data["size"]
@@ -336,6 +368,11 @@ func _spawn_mist_layers() -> void:
 
 
 func _spawn_snowfall() -> void:
+	if is_web_build:
+		_spawn_snow_layer("SnowNear", Vector3(0.0, 18.0, 10.0), 180, 7.0, Vector3(24.0, 5.0, 28.0), Vector2(0.1, 0.13), Vector3(0.22, -1.0, 0.08), 22.0, Vector2(2.8, 4.6), Vector3(0.24, -1.8, 0.14), Vector2(0.56, 0.9), 0.9)
+		_spawn_snow_layer("SnowMid", Vector3(0.0, 26.0, -8.0), 260, 9.0, Vector3(54.0, 4.0, 64.0), Vector2(0.07, 0.1), Vector3(0.18, -1.0, 0.06), 16.0, Vector2(2.1, 3.4), Vector3(0.16, -1.4, 0.1), Vector2(0.4, 0.66), 0.74)
+		return
+
 	_spawn_snow_layer(
 		"SnowNear",
 		Vector3(0.0, 18.0, 10.0),
@@ -508,6 +545,9 @@ void fragment() {
 
 
 func _apply_vegetation_wind(root_node: Node, asset_path: String) -> void:
+	if is_web_build:
+		return
+
 	var sway_strength: float = 0.07 if asset_path == REALISTIC_TREE_PATH else 0.04
 	var sway_speed: float = 0.95 if asset_path == REALISTIC_TREE_PATH else 1.25
 	var bend_start: float = 0.24 if asset_path == REALISTIC_TREE_PATH else 0.1
