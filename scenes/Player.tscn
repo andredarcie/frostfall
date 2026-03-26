@@ -1,0 +1,65 @@
+[gd_scene format=3 uid="uid://cmft85x2u1r5i"]
+
+[ext_resource type="Script" uid="uid://bjl2wjljbp026" path="res://scripts/Player.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://c6dfygd6qbdbv" path="res://assets/third_party/medieval-sword/fantasy-sword/src/FantasySword.glb" id="2"]
+
+[sub_resource type="CapsuleShape3D" id="1"]
+radius = 0.45
+height = 1.1
+
+[sub_resource type="StandardMaterial3D" id="2"]
+albedo_color = Color(0.839216, 0.878431, 0.956863, 1)
+
+[sub_resource type="BoxMesh" id="5"]
+size = Vector3(0.8, 1.2, 0.45)
+
+[sub_resource type="StandardMaterial3D" id="3"]
+albedo_color = Color(0.952941, 0.737255, 0.588235, 1)
+
+[sub_resource type="SphereMesh" id="6"]
+radius = 0.34
+height = 0.68
+
+[node name="Player" type="CharacterBody3D" unique_id=923258932]
+script = ExtResource("1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2035900918]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("1")
+
+[node name="Visuals" type="Node3D" parent="." unique_id=909984325]
+visible = false
+
+[node name="Body" type="MeshInstance3D" parent="Visuals" unique_id=785761958]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+material_override = SubResource("2")
+mesh = SubResource("5")
+
+[node name="Head" type="MeshInstance3D" parent="Visuals" unique_id=1499737725]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.82, 0)
+material_override = SubResource("3")
+mesh = SubResource("6")
+
+[node name="Sword" type="Node3D" parent="Visuals" unique_id=706471298]
+transform = Transform3D(0.39491212, -0.21574149, 0, 0.21144103, 0.3870402, -0.08940119, 0.042861216, 0.07845693, 0.44102997, 0.52, 1.04, -0.16)
+
+[node name="FantasySword" parent="Visuals/Sword" unique_id=1665013481 instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, -3.6199901e-06, 1, 0, -1, -3.6199901e-06, 0, 0.02, 0)
+
+[node name="CameraRig" type="Node3D" parent="." unique_id=511391225]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.65, 0)
+
+[node name="PitchPivot" type="Node3D" parent="CameraRig" unique_id=1978957365]
+transform = Transform3D(1, 0, 0, 0, 0.99280864, 0.119712204, 0, -0.119712204, 0.99280864, 0, 0, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CameraRig/PitchPivot" unique_id=1627707536]
+current = true
+fov = 82.0
+
+[node name="ViewModel" type="Node3D" parent="CameraRig/PitchPivot/Camera3D" unique_id=445431829]
+
+[node name="Sword" type="Node3D" parent="CameraRig/PitchPivot/Camera3D/ViewModel" unique_id=1466509814]
+transform = Transform3D(0.905115, 0.07741236, 0.2416074, -0.07510479, 0.9368063, -0.018798746, -0.24233453, -0.0012031049, 0.90822494, 1.3172938, -0.49328554, -0.8380303)
+
+[node name="FantasySword" parent="CameraRig/PitchPivot/Camera3D/ViewModel/Sword" unique_id=146596445 instance=ExtResource("2")]
+transform = Transform3D(0.9902161, 0.13954313, -3.632158e-07, 1.3038516e-07, -3.6135316e-06, -1, -0.13954315, 0.9902161, -3.5986304e-06, -0.80307424, -0.49039555, -0.21970773)
