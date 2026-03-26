@@ -27,11 +27,7 @@ glow_enabled = true
 glow_intensity = 0.05
 glow_bloom = 0.04
 glow_blend_mode = 0
-ssao_enabled = true
-ssao_radius = 2.0
-ssao_intensity = 1.35
-ssao_power = 1.6
-ssao_detail = 0.72
+ssao_enabled = false
 fog_enabled = true
 fog_light_color = Color(0.86, 0.91, 0.98, 1)
 fog_light_energy = 1.05
@@ -115,10 +111,10 @@ light_color = Color(0.784314, 0.85098, 0.941176, 1)
 light_energy = 0.92
 shadow_enabled = true
 directional_shadow_mode = 1
-directional_shadow_max_distance = 180.0
-directional_shadow_split_1 = 0.08
-directional_shadow_split_2 = 0.2
-directional_shadow_split_3 = 0.45
+directional_shadow_max_distance = 90.0
+directional_shadow_split_1 = 0.12
+directional_shadow_split_2 = 0.28
+directional_shadow_split_3 = 0.6
 
 [node name="FillLight" type="DirectionalLight3D" parent="."]
 rotation = Vector3(-0.4, -2.2, 0)

@@ -2,8 +2,8 @@ extends Node3D
 
 const TERRAIN_CENTER := Vector3(0.0, 0.0, -2.0)
 const TERRAIN_HALF_SIZE := Vector2(88.0, 108.0)
-const TERRAIN_SUBDIVISIONS_X := 168
-const TERRAIN_SUBDIVISIONS_Z := 212
+const TERRAIN_SUBDIVISIONS_X := 96
+const TERRAIN_SUBDIVISIONS_Z := 120
 const REALISTIC_TREE_PATH := "res://assets/third_party/vegetation/pixabay/real_tree.glb"
 const REALISTIC_BUSH_PATH := "res://assets/third_party/vegetation/pixabay/real_bush.glb"
 
@@ -318,14 +318,10 @@ func _spawn_dense_forest() -> void:
 func _spawn_mist_layers() -> void:
 	var mist_material: ShaderMaterial = _make_mist_material()
 	for mist_data in [
-		{"position": Vector3(0.0, 5.0, -20.0), "size": Vector2(180.0, 28.0), "alpha": 0.72},
-		{"position": Vector3(0.0, 8.0, -40.0), "size": Vector2(230.0, 34.0), "alpha": 0.82},
-		{"position": Vector3(-52.0, 8.0, -20.0), "size": Vector2(128.0, 28.0), "alpha": 0.62},
-		{"position": Vector3(52.0, 8.2, -20.0), "size": Vector2(128.0, 28.0), "alpha": 0.62},
-		{"position": Vector3(0.0, 13.0, -70.0), "size": Vector2(320.0, 52.0), "alpha": 0.95},
-		{"position": Vector3(0.0, 18.0, -106.0), "size": Vector2(380.0, 62.0), "alpha": 1.0},
-		{"position": Vector3(0.0, 24.0, -146.0), "size": Vector2(430.0, 72.0), "alpha": 1.0},
-		{"position": Vector3(0.0, 31.0, -186.0), "size": Vector2(480.0, 84.0), "alpha": 1.0}
+		{"position": Vector3(0.0, 8.0, -40.0), "size": Vector2(210.0, 32.0), "alpha": 0.55},
+		{"position": Vector3(0.0, 13.0, -78.0), "size": Vector2(280.0, 44.0), "alpha": 0.72},
+		{"position": Vector3(0.0, 22.0, -142.0), "size": Vector2(360.0, 60.0), "alpha": 0.88},
+		{"position": Vector3(0.0, 30.0, -188.0), "size": Vector2(420.0, 74.0), "alpha": 0.9}
 	]:
 		var mist_plane := MeshInstance3D.new()
 		var plane := PlaneMesh.new()
@@ -343,7 +339,7 @@ func _spawn_snowfall() -> void:
 	_spawn_snow_layer(
 		"SnowNear",
 		Vector3(0.0, 18.0, 10.0),
-		1200,
+		450,
 		8.0,
 		Vector3(32.0, 6.0, 34.0),
 		Vector2(0.12, 0.16),
@@ -357,7 +353,7 @@ func _spawn_snowfall() -> void:
 	_spawn_snow_layer(
 		"SnowMid",
 		Vector3(0.0, 28.0, -8.0),
-		1800,
+		700,
 		10.0,
 		Vector3(78.0, 4.0, 92.0),
 		Vector2(0.08, 0.11),
@@ -371,7 +367,7 @@ func _spawn_snowfall() -> void:
 	_spawn_snow_layer(
 		"SnowFar",
 		Vector3(0.0, 40.0, -54.0),
-		2200,
+		900,
 		12.0,
 		Vector3(128.0, 8.0, 150.0),
 		Vector2(0.045, 0.07),
@@ -385,7 +381,7 @@ func _spawn_snowfall() -> void:
 	_spawn_snow_layer(
 		"SnowGust",
 		Vector3(0.0, 3.4, -6.0),
-		900,
+		260,
 		6.5,
 		Vector3(94.0, 1.2, 108.0),
 		Vector2(0.06, 0.12),
